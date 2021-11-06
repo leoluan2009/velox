@@ -28,10 +28,8 @@ namespace facebook::velox::functions {
 template <typename T>
 struct PlusFunction {
   template <typename TInput>
-  FOLLY_ALWAYS_INLINE bool call(
-      TInput& result,
-      const TInput& a,
-      const TInput& b) {
+  FOLLY_ALWAYS_INLINE bool
+  call(TInput& result, const TInput& a, const TInput& b) {
     result = plus(a, b);
     return true;
   }
@@ -40,10 +38,8 @@ struct PlusFunction {
 template <typename T>
 struct MinusFunction {
   template <typename TInput>
-  FOLLY_ALWAYS_INLINE bool call(
-      TInput& result,
-      const TInput& a,
-      const TInput& b) {
+  FOLLY_ALWAYS_INLINE bool
+  call(TInput& result, const TInput& a, const TInput& b) {
     result = minus(a, b);
     return true;
   }
@@ -52,10 +48,8 @@ struct MinusFunction {
 template <typename T>
 struct MultiplyFunction {
   template <typename TInput>
-  FOLLY_ALWAYS_INLINE bool call(
-      TInput& result,
-      const TInput& a,
-      const TInput& b) {
+  FOLLY_ALWAYS_INLINE bool
+  call(TInput& result, const TInput& a, const TInput& b) {
     result = multiply(a, b);
     return true;
   }
@@ -64,26 +58,25 @@ struct MultiplyFunction {
 template <typename T>
 struct DivideFunction {
   template <typename TInput>
-  FOLLY_ALWAYS_INLINE bool call(TInput& result, const TInput& a, const TInput& b)
+  FOLLY_ALWAYS_INLINE bool
+  call(TInput& result, const TInput& a, const TInput& b)
 // depend on compiler have correct behaviour for divide by zero
 #if defined(__has_feature)
 #if __has_feature(__address_sanitizer__)
-    __attribute__((__no_sanitize__("float-divide-by-zero")))
+      __attribute__((__no_sanitize__("float-divide-by-zero")))
 #endif
 #endif
-{
+  {
     result = a / b;
     return true;
-}
+  }
 };
 
 template <typename T>
 struct ModulusFunction {
   template <typename TInput>
-  FOLLY_ALWAYS_INLINE bool call(
-      TInput& result,
-      const TInput& a,
-      const TInput& b) {
+  FOLLY_ALWAYS_INLINE bool
+  call(TInput& result, const TInput& a, const TInput& b) {
     result = modulus(a, b);
     return true;
   }
