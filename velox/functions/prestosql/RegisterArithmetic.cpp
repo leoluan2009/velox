@@ -40,11 +40,11 @@ void registerBitwiseUnaryIntegral(const std::vector<std::string>& aliases) {
 } // namespace
 
 void registerArithmeticFunctions() {
-  registerBinaryNumeric<PlusFunction>({"plus"});
-  registerBinaryNumeric<MinusFunction>({"minus"});
-  registerBinaryNumeric<MultiplyFunction>({"multiply"});
-  registerBinaryNumeric<DivideFunction>({"divide"});
-  registerBinaryNumeric<ModulusFunction>({"modulus"});
+  registerBinaryFloatingPoint<PlusFunction>({"plus"});
+  registerBinaryFloatingPoint<MinusFunction>({"minus"});
+  registerBinaryFloatingPoint<MultiplyFunction>({"multiply"});
+  registerBinaryFloatingPoint<DivideFunction>({"divide"});
+  registerBinaryFloatingPoint<ModulusFunction>({"modulus"});
   registerUnaryNumeric<udf_ceil>({"ceil", "ceiling"});
   registerUnaryNumeric<udf_floor>({});
   registerUnaryNumeric<udf_abs>({});
