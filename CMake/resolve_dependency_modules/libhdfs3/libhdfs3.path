@@ -1,13 +1,111 @@
+diff --git a/depends/libhdfs3/CMake/Options.cmake b/depends/libhdfs3/CMake/Options.cmake
+index 8141cab6..ba787564 100644
+--- a/depends/libhdfs3/CMake/Options.cmake
++++ b/depends/libhdfs3/CMake/Options.cmake
+@@ -114,7 +114,7 @@ ENDIF(CMAKE_COMPILER_IS_GNUCXX)
+ 
+ TRY_COMPILE(STRERROR_R_RETURN_INT
+ 	${CMAKE_BINARY_DIR}
+-	${CMAKE_SOURCE_DIR}/CMake/CMakeTestCompileStrerror.cpp
++	${CMAKE_CURRENT_LIST_DIR}/CMakeTestCompileStrerror.cpp
+     CMAKE_FLAGS "-DCMAKE_CXX_LINK_EXECUTABLE='echo not linking now...'"
+ 	OUTPUT_VARIABLE OUTPUT)
+ 
+@@ -128,13 +128,13 @@ ENDIF(STRERROR_R_RETURN_INT)
+ 
+ TRY_COMPILE(HAVE_STEADY_CLOCK
+ 	${CMAKE_BINARY_DIR}
+-	${CMAKE_SOURCE_DIR}/CMake/CMakeTestCompileSteadyClock.cpp
++	${CMAKE_CURRENT_LIST_DIR}/CMakeTestCompileSteadyClock.cpp
+     CMAKE_FLAGS "-DCMAKE_CXX_LINK_EXECUTABLE='echo not linking now...'"
+ 	OUTPUT_VARIABLE OUTPUT)
+ 
+ TRY_COMPILE(HAVE_NESTED_EXCEPTION
+ 	${CMAKE_BINARY_DIR}
+-	${CMAKE_SOURCE_DIR}/CMake/CMakeTestCompileNestedException.cpp
++	${CMAKE_CURRENT_LIST_DIR}/CMakeTestCompileNestedException.cpp
+     CMAKE_FLAGS "-DCMAKE_CXX_LINK_EXECUTABLE='echo not linking now...'"
+ 	OUTPUT_VARIABLE OUTPUT)
+ 
+diff --git a/depends/libhdfs3/CMake/Platform.cmake b/depends/libhdfs3/CMake/Platform.cmake
+index ea00fa3f..54e93740 100644
+--- a/depends/libhdfs3/CMake/Platform.cmake
++++ b/depends/libhdfs3/CMake/Platform.cmake
+@@ -14,10 +14,13 @@ IF(CMAKE_COMPILER_IS_GNUCXX)
+     ENDIF (NOT GCC_COMPILER_VERSION)
+     
+     STRING(REGEX MATCHALL "[0-9]+" GCC_COMPILER_VERSION ${GCC_COMPILER_VERSION})
+-    
++    list(LENGTH GCC_COMPILER_VERSION gcc_length)
++
+     LIST(GET GCC_COMPILER_VERSION 0 GCC_COMPILER_VERSION_MAJOR)
+-    LIST(GET GCC_COMPILER_VERSION 1 GCC_COMPILER_VERSION_MINOR)
+-    
++    if(${gcc_length} GREATER 1)
++      LIST(GET GCC_COMPILER_VERSION 1 GCC_COMPILER_VERSION_MINOR)
++    endif()
++
+     SET(GCC_COMPILER_VERSION_MAJOR ${GCC_COMPILER_VERSION_MAJOR} CACHE INTERNAL "gcc major version")
+     SET(GCC_COMPILER_VERSION_MINOR ${GCC_COMPILER_VERSION_MINOR} CACHE INTERNAL "gcc minor version")
+     
 diff --git a/depends/libhdfs3/CMakeLists.txt b/depends/libhdfs3/CMakeLists.txt
-index f49e68dc..c5cf1b09 100644
+index f49e68dc..8aba597f 100644
 --- a/depends/libhdfs3/CMakeLists.txt
 +++ b/depends/libhdfs3/CMakeLists.txt
-@@ -8,7 +8,7 @@ IF(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
+@@ -1,4 +1,4 @@
+-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
++CMAKE_MINIMUM_REQUIRED(VERSION 3.0.0)
+ 
+ PROJECT(libhdfs3)
+ 
+@@ -8,15 +8,15 @@ IF(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
      MESSAGE(FATAL_ERROR "cannot build the project in the source directory! Out-of-source build is enforced!")
  ENDIF()
  
 -SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake" ${CMAKE_MODULE_PATH})
+-SET(DOXYFILE_PATH ${CMAKE_SOURCE_DIR}/docs)
 +SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/CMake" ${CMAKE_MODULE_PATH})
- SET(DOXYFILE_PATH ${CMAKE_SOURCE_DIR}/docs)
++SET(DOXYFILE_PATH ${CMAKE_CURRENT_LIST_DIR}/../../docs)
  
  INCLUDE(Platform)
+ INCLUDE(Functions)
+ INCLUDE(Options)
+ 
+ 
+-SET(CMAKE_PREFIX_PATH "/opt/dependency/package" "/opt/dependency/tools")
++# SET(CMAKE_PREFIX_PATH "/opt/dependency/package" "/opt/dependency/tools")
+ 
+ FIND_PACKAGE(LibXml2 REQUIRED)
+ FIND_PACKAGE(Protobuf REQUIRED)
+@@ -34,18 +34,18 @@ ADD_SUBDIRECTORY(mock)
+ ADD_SUBDIRECTORY(src)
+ ADD_SUBDIRECTORY(test)
+ 
+-CONFIGURE_FILE(src/libhdfs3.pc.in ${CMAKE_SOURCE_DIR}/src/libhdfs3.pc @ONLY)
+-CONFIGURE_FILE(debian/changelog.in ${CMAKE_SOURCE_DIR}/debian/changelog @ONLY)
++CONFIGURE_FILE(src/libhdfs3.pc.in ${CMAKE_LIST_DIR}/src/libhdfs3.pc @ONLY)
++CONFIGURE_FILE(debian/changelog.in ${CMAKE_LIST_DIR}/debian/changelog @ONLY)
+ 
+ ADD_CUSTOM_TARGET(debian-package
+ 	COMMAND dpkg-buildpackage -us -uc -b
+-	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
++	WORKING_DIRECTORY ${CMAKE_LIST_DIR}
+ 	COMMENT "Create debian package..."
+ )
+ 
+ ADD_CUSTOM_TARGET(rpm-package
+-	COMMAND rpmbuild -bb --define "_topdir ${CMAKE_SOURCE_DIR}/rpms" --define "version ${libhdfs3_VERSION_STRING}" ${CMAKE_SOURCE_DIR}/rpms/libhdfs3.spec
+-	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
++	COMMAND rpmbuild -bb --define "_topdir ${CMAKE_LIST_DIR}/rpms" --define "version ${libhdfs3_VERSION_STRING}" ${CMAKE_LIST_DIR}/rpms/libhdfs3.spec
++	WORKING_DIRECTORY ${CMAKE_LIST_DIR}
+ 	COMMENT "Create rpm package..."
+ )
+ 
+@@ -60,6 +60,6 @@ ADD_CUSTOM_TARGET(style
+ 	COMMAND astyle --style=attach --indent=spaces=4 --indent-preprocessor --break-blocks --pad-oper --pad-header --unpad-paren --delete-empty-lines --suffix=none --align-pointer=middle --lineend=linux --indent-col1-comments ${unit_SOURCES}
+ 	COMMAND astyle --style=attach --indent=spaces=4 --indent-preprocessor --break-blocks --pad-oper --pad-header --unpad-paren --delete-empty-lines --suffix=none --align-pointer=middle --lineend=linux --indent-col1-comments ${function_SOURCES}
+ 	COMMAND astyle --style=attach --indent=spaces=4 --indent-preprocessor --break-blocks --pad-oper --pad-header --unpad-paren --delete-empty-lines --suffix=none --align-pointer=middle --lineend=linux --indent-col1-comments ${secure_SOURCES}
+-	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
++	WORKING_DIRECTORY ${CMAKE_LIST_DIR}
+ 	COMMENT "format code style..."
+ )
