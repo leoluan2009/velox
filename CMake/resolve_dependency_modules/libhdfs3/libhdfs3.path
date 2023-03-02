@@ -1,0 +1,13 @@
+diff --git a/depends/libhdfs3/CMakeLists.txt b/depends/libhdfs3/CMakeLists.txt
+index f49e68dc..c5cf1b09 100644
+--- a/depends/libhdfs3/CMakeLists.txt
++++ b/depends/libhdfs3/CMakeLists.txt
+@@ -8,7 +8,7 @@ IF(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
+     MESSAGE(FATAL_ERROR "cannot build the project in the source directory! Out-of-source build is enforced!")
+ ENDIF()
+ 
+-SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake" ${CMAKE_MODULE_PATH})
++SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/CMake" ${CMAKE_MODULE_PATH})
+ SET(DOXYFILE_PATH ${CMAKE_SOURCE_DIR}/docs)
+ 
+ INCLUDE(Platform)
