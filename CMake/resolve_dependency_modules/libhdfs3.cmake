@@ -28,9 +28,9 @@ message(STATUS "Building Libhdfs3 from source")
 
 FetchContent_Declare(
   libhdfs3
-  URL ${LIBHDFS3_SOURCE_URL}
-  URL_HASH SHA256=${VELOX_LIBHDFS3_BUILD_SHA256_CHECKSUM}
+  GIT_REPOSITORY https://github.com/apache/hawq.git
+  GIT_TAG b136a8e96da994914b97281be86a8602ac1b7862 # rel/v3.0.0.0
   PATCH_COMMAND git apply ${CMAKE_CURRENT_LIST_DIR}/libhdfs3/libhdfs3.path
-  SOURCE_SUBDIR depends/libhdfs3)
+                SOURCE_SUBDIR depends/libhdfs3)
 
 FetchContent_MakeAvailable(libhdfs3)
