@@ -136,7 +136,7 @@ function install_protobuf {
   wget_and_untar https://github.com/protocolbuffers/protobuf/releases/download/v21.4/protobuf-all-21.4.tar.gz protobuf
   (
     cd protobuf
-    ./configure --prefix=/usr --disable-shared
+    ./configure --prefix=/usr --disable-shared CXXFLAGS="-fPIC"
     make "-j${NPROC}"
     make install
     ldconfig
