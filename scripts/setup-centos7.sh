@@ -85,7 +85,7 @@ function install_gflags {
   wget_and_untar https://github.com/gflags/gflags/archive/v2.2.2.tar.gz gflags
   (
     cd gflags
-    cmake_install -DBUILD_SHARED_LIBS=ON -DBUILD_STATIC_LIBS=ON -DBUILD_gflags_LIB=ON -DLIB_SUFFIX=64
+    cmake_install -DBUILD_STATIC_LIBS=ON -DBUILD_gflags_LIB=ON -DLIB_SUFFIX=64
   )
 }
 
