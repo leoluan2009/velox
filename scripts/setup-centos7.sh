@@ -241,7 +241,7 @@ function install_velox_deps {
 $SUDO dnf makecache
 
 # dnf install dependency libraries
-dnf_install epel-release dnf-plugins-core # For ccache, ninja
+dnf_install epel-release # For ccache, ninja
 # PowerTools only works on CentOS8
 # dnf config-manager --set-enabled powertools
 dnf_install ccache git wget which libevent-devel \
