@@ -841,4 +841,59 @@ struct MillisToTimestampFunction {
   }
 };
 
+template <typename TExec>
+struct MonthsBetweenFunction : InitSessionTimezone<TExec> {
+  VELOX_DEFINE_FUNCTION_TYPES(TExec);
+
+  FOLLY_ALWAYS_INLINE bool isEndDayOfMonth(const std::tm& dateTime) {
+    auto year = dateTime.tm_year + 1900;
+    auto month = dateTime.tm_mon + 1;
+    auto endDay = util::getMaxDayOfMonth(year, month);
+    return dateTime.tm_mday == endDay;
+  }
+
+  FOLLY_ALWAYS_INLINE double monthsBetween(
+      const std::tm& datetime1,
+      const std::tm& datetime2,
+      const bool roundOff) {
+    auto yearDiff = datetime1.tm_year - datetime2.tm_year;
+    auto monthDiff = yearDiff * 12 + datetime1.tm_mon - datetime2.tm_mon;
+
+    if (datetime1.tm_mday == datetime2.tm_mday ||
+        (isEndDayOfMonth(datetime1) && isEndDayOfMonth(datetime2))) {
+      return static_cast<double>(monthDiff);
+    }
+    auto dayDiff = datetime1.tm_mday - datetime2.tm_mday;
+    auto hourDiff = datetime1.tm_hour - datetime2.tm_hour;
+    auto minuteDiff = datetime1.tm_min - datetime2.tm_min;
+    auto secondsDiff = dayDiff * 86400 + hourDiff * 3600 + minuteDiff * 60 +
+        datetime1.tm_sec - datetime2.tm_sec;
+    auto diff =
+        monthDiff + static_cast<double>(secondsDiff) / (31 * 24 * 60 * 60);
+    if (roundOff) {
+      return std::round(diff * 100000000) / 100000000;
+    }
+    return diff;
+  }
+
+  FOLLY_ALWAYS_INLINE void call(
+      out_type<double>& result,
+      const arg_type<Timestamp>& date1,
+      const arg_type<Timestamp>& date2) {
+    const auto datetime1 = getDateTime(date1, this->timeZone_);
+    const auto datetime2 = getDateTime(date2, this->timeZone_);
+    result = monthsBetween(datetime1, datetime2, true);
+  }
+
+  FOLLY_ALWAYS_INLINE void call(
+      out_type<double>& result,
+      const arg_type<Timestamp>& date1,
+      const arg_type<Timestamp>& date2,
+      const arg_type<bool>& roundOff) {
+    const auto datetime1 = getDateTime(date1, this->timeZone_);
+    const auto datetime2 = getDateTime(date2, this->timeZone_);
+    result = monthsBetween(datetime1, datetime2, roundOff);
+  }
+};
+
 } // namespace facebook::velox::functions::sparksql

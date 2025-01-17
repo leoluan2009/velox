@@ -1126,5 +1126,44 @@ TEST_F(DateTimeFunctionsTest, timestampToMillis) {
   EXPECT_EQ(timestampToMillis("-292275055-05-16 16:47:04.192"), kMinBigint);
 }
 
+TEST_F(DateTimeFunctionsTest, monthsBetween) {
+  const auto monthsBetween1 = [&](const StringView date1,
+                                  const StringView date2) {
+    return evaluateOnce<double>(
+        "months_between(c0,c1)",
+        std::make_optional(parseTimestamp(date1)),
+        std::make_optional(parseTimestamp(date2)));
+  };
+  EXPECT_EQ(monthsBetween1("1970-05-01 00:00:01", "1970-06-01 12:00:01"), -1.0);
+  EXPECT_EQ(monthsBetween1("1970-07-01 00:00:01", "1970-06-01 12:00:01"), 1.0);
+  EXPECT_EQ(monthsBetween1("1970-05-31 00:00:01", "1970-06-30 12:00:01"), -1.0);
+  EXPECT_EQ(monthsBetween1("1970-07-31 00:00:01", "1970-06-30 12:00:01"), 1.0);
+  EXPECT_EQ(
+      monthsBetween1("1973-05-10 10:00:00", "1972-06-01 12:00:00"),
+      11.28763441);
+
+  const auto monthsBetween2 =
+      [&](const StringView date1, const StringView date2, const bool roundOff) {
+        return evaluateOnce<double>(
+            "months_between(c0,c1)",
+            std::make_optional(parseTimestamp(date1)),
+            std::make_optional(parseTimestamp(date2)),
+            std::make_optional(roundOff));
+      };
+  EXPECT_EQ(
+      monthsBetween2("1970-05-01 00:00:01", "1970-06-01 12:00:01", false),
+      -1.0);
+  EXPECT_EQ(
+      monthsBetween2("1970-07-01 00:00:01", "1970-06-01 12:00:01", false), 1.0);
+  EXPECT_EQ(
+      monthsBetween2("1970-05-31 00:00:01", "1970-06-30 12:00:01", false),
+      -1.0);
+  EXPECT_EQ(
+      monthsBetween2("1970-07-31 00:00:01", "1970-06-30 12:00:01", false), 1.0);
+  EXPECT_EQ(
+      monthsBetween2("1973-05-10 10:00:00", "1972-06-01 12:00:00", false),
+      11.287634410000001);
+}
+
 } // namespace
 } // namespace facebook::velox::functions::sparksql::test
